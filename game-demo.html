@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Game Effects Demo</title>
+  <meta charset="utf-8">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background: #0f172a;
+      width: 800px;
+      height: 600px;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .game-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
+
+    .quadrant {
+      position: relative;
+      border: 1px solid #1e293b;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .quadrant:hover {
+      background-color: rgba(30, 41, 59, 0.3);
+    }
+
+    .quadrant-title {
+      position: absolute;
+      top: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #94a3b8;
+      font-size: 0.875rem;
+      white-space: nowrap;
+    }
+
+    #portal-area {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .click-hint {
+      color: #475569;
+      font-size: 0.75rem;
+      position: absolute;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <!-- Spell Effect Quadrant -->
+    <div class="quadrant" id="q1">
+      <div class="quadrant-title">Spell Effects</div>
+      <div class="click-hint">Click anywhere in this area</div>
+    </div>
+
+    <!-- Damage Numbers Quadrant -->
+    <div class="quadrant" id="q2">
+      <div class="quadrant-title">Damage Numbers</div>
+      <div class="click-hint">Click anywhere in this area</div>
+    </div>
+
+    <!-- Level Up Quadrant -->
+    <div class="quadrant" id="q3">
+      <div class="quadrant-title">Level Up Effect</div>
+      <div class="click-hint">Click anywhere in this area</div>
+    </div>
+
+    <!-- Portal Quadrant -->
+    <div class="quadrant" id="q4">
+      <div class="quadrant-title">Portal Effect</div>
+      <div id="portal-area"></div>
+      <div class="click-hint">Click to toggle portal</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { 
+      createSpellEffect, 
+      showDamageNumber, 
+      playLevelUpEffect,
+      createPortalEffect 
+    } from './game-effects.js';
+
+    let portalAnimation = null;
+
+    // Generate random color
+    function getRandomColor() {
+      const hue = Math.floor(Math.random() * 360);
+      const saturation = 70 + Math.random() * 30; // 70-100%
+      const lightness = 50 + Math.random() * 20; // 50-70%
+      return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    }
+
+    // Event handlers for each quadrant
+    document.getElementById('q1').addEventListener('click', (e) => {
+      if (e.target.classList.contains('click-hint')) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX;
+      const y = e.clientY;
+      createSpellEffect(x, y, 30, getRandomColor());
+    });
+
+    document.getElementById('q2').addEventListener('click', (e) => {
+      if (e.target.classList.contains('click-hint')) return;
+      const damage = Math.floor(Math.random() * 100);
+      const isCritical = Math.random() > 0.7;
+      showDamageNumber(damage, e.clientX, e.clientY, isCritical, getRandomColor());
+    });
+
+    document.getElementById('q3').addEventListener('click', (e) => {
+      if (e.target.classList.contains('click-hint')) return;
+      const effectContainer = document.createElement('div');
+      effectContainer.style.position = 'absolute';
+      effectContainer.style.left = (e.clientX - 50) + 'px';
+      effectContainer.style.top = (e.clientY - 50) + 'px';
+      document.body.appendChild(effectContainer);
+      playLevelUpEffect(effectContainer, getRandomColor());
+    });
+
+    document.getElementById('q4').addEventListener('click', (e) => {
+      if (e.target.classList.contains('click-hint')) return;
+      if (portalAnimation) {
+        portalAnimation.pause();
+        const portal = document.querySelector('.portal-effect');
+        if (portal) portal.remove();
+        portalAnimation = null;
+      } else {
+        portalAnimation = createPortalEffect(e.clientX - 50, e.clientY - 50, getRandomColor());
+      }
+    });
+  </script>
+</body>
+</html> 
